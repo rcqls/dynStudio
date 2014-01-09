@@ -6,35 +6,56 @@
     #editor { 
         position: absolute;
         top: 0;
-        right: 0;
+        right: 50%;
         bottom: 0;
         left: 0;
     }
 </style>
-</head>
-<body>
-
-<div id="editor">
-</div> <canvas id="pdf-canvas" style="border:1px solid black;"/>
-<input style="display:none;" id="openDialog" type="file" />
-<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <!-- script src="lib/mode-dyndoc.js" type="text/javascript" charset="utf-8"></script-->
 <!--script src="lib/snippets/dyndoc.js" type="text/javascript" charset="utf-8"></script-->
 
+</head>
+<body>
+
+<input style="display:none;" id="openDialog" type="file" />
+<div id="container">
+<div id="editor"></div>
+</div>
+<iframe src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
 <script>
     var gui = require('nw.gui');
     var fs = require("fs");
     var path = require("path");
     var exec = require('child_process').exec;
-    
-    // Listen to `open` event
-    // gui.App.on('open', function(cmdline) {
-    //   console.log('command line: ' + cmdline);
-    // });
 
     ace.require("ace/ext/language_tools");
-    var win={};
+
+    function initFile(filename,old) {
+        win.currentFile=filename;
+        win.basename=path.basename(win.currentFile);
+        win.dirname=path.dirname(win.currentFile);
+        
+        //pdf
+        if(typeof(old) === 'undefined') {
+            win.oldPdf=win.currentPdf;
+        }
+        win.currentPdf=path.join(win.dirname,path.basename(win.currentFile, path.extname(win.currentFile)))+'.pdf';
+        //unwatch
+        if(typeof(old) === 'undefined') {
+            fs.unwatchFile(win.oldPdf);
+        }
+        //watch
+        fs.watchFile(win.currentPdf, function(curr,prev) {
+            console.log(win.currentPdf + " updated!");
+            if(win.pdf[win.currentPdf]) win.pdf[win.currentPdf].close();
+                win.pdf[win.currentPdf]=gui.Window.open("pdf.js/web/viewer.html?file="+win.currentPdf+"?time="+Math.random());
+            //exec("open "+win.currentPdf);
+        })
+    }
+
+    var win={pdf: {}};
     var editor = ace.edit("editor");
     editor.setOptions({
         enableBasicAutocompletion: true,
@@ -42,29 +63,27 @@
     });
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/dyndoc");
-    win.currentFile=gui.App.argv[0];
+    initFile(gui.App.argv[0],false);
     editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));
 
     function chooseFile(name) {
         var chooser = document.querySelector(name);
         chooser.addEventListener("change", function(evt) {
-            win.currentFile=this.value;
-            win.basename=path.basename(win.currentFile);
-            win.dirname=path.dirname(win.currentFile);
-            //pdf
-            win.oldPdf=win.currentPdf;
-            win.currentPdf=path.join(win.dirname,path.basename(win.currentFile, path.extname(win.currentFile)))+'.pdf';
             // open
             if (name=="#openDialog") {
+                initFile(this.value);
                 console.log("open "+win.currentFile);
                 editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));
-                //unwatch
-                fs.unwatchFile(win.oldPdf);
-                //watch
-                fs.watchFile(win.currentPdf, function(curr,prev) {
-                    console.log(win.currentPdf + " updated!");
-                    exec("open "+win.currentPdf);
-                })
+                // //unwatch
+                // fs.unwatchFile(win.oldPdf);
+                // //watch
+                // fs.watchFile(win.currentPdf, function(curr,prev) {
+                //     console.log(win.currentPdf + " updated!");
+                //     // if(!win.pdf[win.currentPdf]) {
+                //     //     win.pdf[win.currentPdf]=gui.Window.open("pdf.js/viewer.html");
+                //     // }
+                //     exec("open "+win.currentPdf);
+                // })
             }
             // other here
         }, false);
@@ -94,6 +113,7 @@
         name: 'dyndoc',
         bindKey: {mac: "Command-X", win: "Ctrl-X"},
         exec: function(editor) {
+            console.log("dir: "+win);
             process.chdir(win.dirname);
             var cmd="dyndoc-ruby all -cspdf "+win.basename;
             exec(cmd,function (error, stdout, stderr) {
@@ -104,5 +124,6 @@
     })
      
 </script>
+  
 </body>
 </html>
