@@ -23,7 +23,7 @@
 <div id="container">
 <div id="editor"></div>
 </div>
-<iframe src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
+<iframe id="pdfviewer" src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
 <script>
 'use strict';
     var gui = require('nw.gui');
@@ -94,6 +94,55 @@
         }, false);
         chooser.click();        
     }
+
+    window.addEventListener('keydown', function keydown(evt) {
+
+        var handled = false;
+        var cmd = (evt.ctrlKey ? 1 : 0) |
+                (evt.altKey ? 2 : 0) |
+                (evt.shiftKey ? 4 : 0) |
+                (evt.metaKey ? 8 : 0);
+
+        // First, handle the key bindings that are independent whether an input
+        // control is selected or not.
+        if (cmd === 12 && evt.keyCode==69) {
+            if (document.getElementById("pdfviewer").style.width=="50%") {
+                //document.getElementById("editor").hide();
+                document.getElementById("pdfviewer").style.width="95%";
+                document.getElementById("pdfviewer").style.left="5%";
+                //document.getElementById("pdfviewer").style.top="20%";
+                document.getElementById("editor").style.display="none";
+            } else {
+                //document.getElementById("editor").show();
+                document.getElementById("pdfviewer").style.width="50%";
+                document.getElementById("pdfviewer").style.left="50%";
+                //document.getElementById("pdfviewer").style.top="0%";
+                document.getElementById("editor").style.display="";
+            }
+        }
+    });
+
+
+    editor.commands.addCommand({
+        name: 'tooglepdf',
+        bindKey: {mac: "Command-Shift-E", win: "Shift-Ctrl-E"},
+        exec: function(editor) {
+             
+            if (document.getElementById("pdfviewer").style.width=="50%") {
+                //document.getElementById("editor").hide();
+                document.getElementById("pdfviewer").style.width="95%";
+                document.getElementById("pdfviewer").style.left="5%";
+                //document.getElementById("pdfviewer").style.top="0%";
+                document.getElementById("editor").style.display="none";
+            } else {
+                //document.getElementById("editor").show();
+                document.getElementById("pdfviewer").style.width="50%";
+                document.getElementById("pdfviewer").style.left="50%";
+                //document.getElementById("pdfviewer").style.top="0%";
+                document.getElementById("editor").style.display="";
+            }
+        }
+    })
 
     editor.commands.addCommand({
         name: 'save',
