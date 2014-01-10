@@ -25,6 +25,7 @@
 </div>
 <iframe src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
 <script>
+'use strict';
     var gui = require('nw.gui');
     var fs = require("fs");
     var path = require("path");
@@ -49,9 +50,13 @@
         //watch
         fs.watchFile(win.currentPdf, function(curr,prev) {
             console.log(win.currentPdf + " updated!");
-            if(win.pdf[win.currentPdf]) win.pdf[win.currentPdf].close();
-                win.pdf[win.currentPdf]=gui.Window.open("pdf.js/web/viewer.html?file="+win.currentPdf+"?time="+Math.random());
-            //exec("open "+win.currentPdf);
+            var pdfview = window.frames[0].PDFView; //PDFView from iframe
+            if (typeof win.currentPdf !== 'undefined') {
+                var pdfBuf;
+                pdfBuf=new Uint8Array(fs.readFileSync(win.currentPdf));
+                pdfview.open(pdfBuf, 0);
+                pdfview.setTitleUsingUrl(path.basename(win.currentPdf));
+            }
         })
     }
 
@@ -122,7 +127,8 @@
             })
         }
     })
-     
+
+
 </script>
   
 </body>
