@@ -75,6 +75,7 @@
     });
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/dyndoc");
+    alert("ici");
     if(gui.App.argv.length>0) {
         initFile(gui.App.argv[0],false);
         editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));

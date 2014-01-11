@@ -1,5 +1,6 @@
 {
   	"name": "dynStudio",
+    "version": "0.1",
   	"main": "dynStudio.html",
   	"window": {
   		"toolbar": false,
