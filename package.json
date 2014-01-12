@@ -3,6 +3,6 @@
   "description": "grunt node webkit builder for dynStudio",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "grunt-node-webkit-builder": "~0.1.14"
+    "grunt-node-webkit-builder": "latest"
   }
 }

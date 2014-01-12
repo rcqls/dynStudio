@@ -868,7 +868,7 @@ var LegacyPromise = PDFJS.LegacyPromise = (function LegacyPromiseClosure() {
         return new globalScope.Promise(function (resolve) { resolve(x); });
       };
     }
-    return;
+    //return; //R:::VERY IMPORTANT: was commented and leads to a fail in node-webkit when packaging
   }
 //#if !MOZCENTRAL
   var STATUS_PENDING = 0;

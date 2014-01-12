@@ -27,7 +27,7 @@
 
 <iframe id="pdfviewer" src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
 <script>
-'use strict';
+//'use strict';
     var gui = require('nw.gui');
     var fs = require("fs");
     var path = require("path");
@@ -123,13 +123,13 @@
 
         // First, handle the key bindings that are independent whether an input
         // control is selected or not.
-        if (cmd === 12 && evt.keyCode==69) togglePdf();
+        if (cmd === 5 && evt.keyCode==84) togglePdf();
     });
 
 
     editor.commands.addCommand({
         name: 'tooglepdf',
-        bindKey: {mac: "Command-Shift-E", win: "Shift-Ctrl-E"},
+        bindKey: {mac: "Ctrl-Shift-T", win: "Ctrl-Shift-T"},
         exec: function(editor) {
              togglePdf();
         }
@@ -147,8 +147,9 @@
 
     editor.commands.addCommand({
         name: 'open',
-        bindKey: {mac: "Command-O", win: "Ctrl-O"},
+        bindKey: {mac: "Command-O", win: "Ctrl-Shift-O"},
         exec: function(editor) {
+            console.log("to open");
             chooseFile("#openDialog");
         }
     })
@@ -156,11 +157,12 @@
 
     editor.commands.addCommand({
         name: 'dyndoc',
-        bindKey: {mac: "Command-X", win: "Ctrl-X"},
+        bindKey: {mac: "Command-X", win: "Ctrl-Shift-X"},
         exec: function(editor) {
-            console.log("dir: "+win);
+            console.log("dir: "+win.dirname);
             process.chdir(win.dirname);
             var cmd="dyndoc-ruby all -cspdf "+win.basename;
+            console.log("exec: "+cmd);
             exec(cmd,function (error, stdout, stderr) {
                var result = '{"stdout":' + stdout + ',"stderr":"' + stderr + '","cmd":"' + cmd + '"}';
                console.log(result + '\n');
