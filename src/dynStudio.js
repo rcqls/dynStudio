@@ -8,20 +8,29 @@
     var touch = require("touch");
     var homepath = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
     var studioRoot = path.join(homepath,"dyndoc","studio");
+    var studioCurrentFile = path.join(studioRoot,".currentFile")
     var studioDyndocJson = path.join(studioRoot,os.platform(),"dyndoc");
-    var dyndoc = {};
+    var cmds = {};
 
+    function resolvePath (string) {
+      if (string.substr(0,1) === '~')
+        string = homepath + string.substr(1);
+        if (os.platform() == "win32") string=string.split("/").join(path.sep);
+      return path.resolve(string)
+    }
 
     console.log("dyndoc.json path: "+studioDyndocJson);
     if (fs.existsSync(studioDyndocJson+".json")) {
-        console.log("ok");
-        dyndoc.cmds = require(studioDyndocJson);
-        dyndoc.cmds.ruby = path.join(homepath,dyndoc.cmds.ruby.join(path.sep));
-        dyndoc.cmds.client = path.join(homepath,dyndoc.cmds.client.join(path.sep));
-        dyndoc.cmds.server = path.join(homepath,dyndoc.cmds.server.join(path.sep));
+        cmds = require(studioDyndocJson);
+        //console.log("commands:"+cmds);
+        cmds.dyndoc.ruby = resolvePath(cmds.dyndoc.ruby.join(path.sep));
+        cmds.dyndoc.client = resolvePath(cmds.dyndoc.client.join(path.sep));
+        cmds.dyndoc.server = resolvePath(cmds.dyndoc.server.join(path.sep));
+        //console.log("commands:"+cmds);
     } else {
-        dyndoc.cmds = {ruby: "dyndoc-ruby", client: "dyndoc-client", server: "dyndoc-server"};
+        cmds.dyndoc = {ruby: "dyndoc-ruby", client: "dyndoc-client", server: "dyndoc-server"};
     }
+
     ace.require("ace/ext/language_tools");
 
     function readPdf(filename) {
@@ -34,6 +43,7 @@
 
     function initFile(filename,old) {
         win.currentFile=filename;
+        fs.writeFileSync(studioCurrentFile,filename);
         win.basename=path.basename(win.currentFile);
         win.dirname=path.dirname(win.currentFile);
         
@@ -55,6 +65,14 @@
         })
     }
 
+    // var menu = new gui.Menu({type: 'menubar'});
+
+    // // Add some items
+    // menu.append(new gui.MenuItem({ label: 'Font Size' }));
+    // menu.append(new gui.MenuItem({ label: 'Keys Bindings' }));
+
+    // gui.Window.get().menu = menu;
+
     var win={pdf: {}};
     var editor = ace.edit("editor");
     editor.setOptions({
@@ -63,11 +81,23 @@
     });
     editor.setTheme("ace/theme/monokai");
     editor.getSession().setMode("ace/mode/dyndoc");
-    if(gui.App.argv.length>0) {
-        initFile(gui.App.argv[0],false);
-        editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));
-        touch(win.currentPdf);
-    }
+
+    // gui.Window.get().on("loaded",function() {
+        if(gui.App.argv.length>0) {
+            initFile(gui.App.argv[0],false);
+            editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));
+            if(fs.existsSync(win.currentPdf)) touch(win.currentPdf);
+        } else if(fs.existsSync(studioCurrentFile)) {
+            var filename=fs.readFileSync(studioCurrentFile, "utf8");
+            console.log("filename:"+filename);
+            initFile(filename,false); 
+        }
+
+        if(win.currentPdf !== undefined) {
+            editor.getSession().setValue(fs.readFileSync(win.currentFile, "utf8"));
+            if(win.currentPdf !== undefined && fs.existsSync(win.currentPdf)) touch(win.currentPdf);
+        }
+    // })
 
     function chooseFile(name) {
         var chooser = document.querySelector(name);
@@ -87,39 +117,145 @@
         if (document.getElementById("pdfviewer").style.width=="50%") {
             //document.getElementById("editor").hide();
             document.getElementById("pdfviewer").style.width="99%";
+            document.getElementById("pdfviewer").style.height="100%";
             document.getElementById("pdfviewer").style.left="1%";
             //document.getElementById("pdfviewer").style.top="20%";
             document.getElementById("editor").style.display="none";
+            document.getElementById("htmlviewer").style.display="none";
+            document.getElementById("togglehtml").style.display="none";
             document.getElementById("togglepdf").style.left="0%";
+            document.getElementById("togglepdf").style.height="100%";
         } else {
             //document.getElementById("editor").show();
             document.getElementById("pdfviewer").style.width="50%";
+            document.getElementById("pdfviewer").style.height="50%";
             document.getElementById("pdfviewer").style.left="50%";
             //document.getElementById("pdfviewer").style.top="0%";
             document.getElementById("editor").style.display="";
+            document.getElementById("htmlviewer").style.display="";
+            document.getElementById("togglehtml").style.display="";
             document.getElementById("togglepdf").style.left="49%";
+            document.getElementById("togglepdf").style.height="50%";
         }
     }
 
-    window.addEventListener('keydown', function keydown(evt) {
+    function toggleHtml() {
+        if (document.getElementById("htmlviewer").style.width=="50%") {
+            //document.getElementById("editor").hide();
+            document.getElementById("htmlviewer").style.width="99%";
+            document.getElementById("htmlviewer").style.top="0%";
+            document.getElementById("htmlviewer").style.height="100%";
+            document.getElementById("htmlviewer").style.left="1%";
+            //document.getElementById("pdfviewer").style.top="20%";
+            document.getElementById("editor").style.display="none";
+            document.getElementById("togglepdf").style.display="none";
+            document.getElementById("togglehtml").style.left="0%";
+            document.getElementById("togglehtml").style.top="0%";
+            document.getElementById("togglehtml").style.height="100%";
+        } else {
+            //document.getElementById("editor").show();
+            document.getElementById("htmlviewer").style.width="50%";
+            document.getElementById("htmlviewer").style.top="50%";
+            document.getElementById("htmlviewer").style.height="50%";
+            document.getElementById("htmlviewer").style.left="50%";
+            //document.getElementById("pdfviewer").style.top="0%";
+            document.getElementById("editor").style.display="";
+            document.getElementById("togglepdf").style.display="";
+            document.getElementById("togglehtml").style.left="49%";
+            document.getElementById("togglehtml").style.top="50%";
+            document.getElementById("togglehtml").style.height="50%";
+        }
+    }
 
-        var handled = false;
-        var cmd = (evt.ctrlKey ? 1 : 0) |
-                (evt.altKey ? 2 : 0) |
-                (evt.shiftKey ? 4 : 0) |
-                (evt.metaKey ? 8 : 0);
+    // keys control
 
-        // First, handle the key bindings that are independent whether an input
-        // control is selected or not.
-        if (cmd === 5 && evt.keyCode==84) togglePdf();
-    });
+    function keydown(evt) {
 
+        var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
+
+        if (cmd === 3 && evt.keyCode==84) gui.Window.get().showDevTools();
+        if (cmd === 3 && evt.keyCode==80) togglePdf();
+        if (cmd === 3 && evt.keyCode==72) toggleHtml();
+        if (cmd === 5 && evt.keyCode==72) gui.Window.open('http://dyndoc.upmf-grenoble.fr/Dyndoc.html', {toolbar: true,position: 'center'});
+
+        //DEBUG: console.log("keydown:"+cmd+","+evt.keyCode);
+        if (this == window.frames[1]) {
+            function resizeText(multiplier) {
+                if (window.frames[1].document.body.style.fontSize == "") {
+                window.frames[1].document.body.style.fontSize = "1.0em";
+                }
+                window.frames[1].document.body.style.fontSize = parseFloat(window.frames[1].document.body.style.fontSize) + (multiplier * 0.2) + "em";
+            }
+            if (cmd === 3 && evt.keyCode==187) resizeText(1);
+            if (cmd === 3 && evt.keyCode==189) resizeText(-1);
+        }
+
+    }
+
+    window.addEventListener('keydown', keydown);
+
+    window.frames[0].addEventListener('keydown',keydown);
+
+    window.frames[1].addEventListener('keydown',keydown);
+
+
+    //Note: already in use Ctrl-Shift-(EUDKLPRZ) Ctrl-Alt-(E)
+
+    editor.commands.addCommand({
+        name: "increaseFontSize",
+        bindKey: {mac: "Ctrl-Alt-Z", win: "Ctrl-Alt-Z"},//{mac: "Ctrl-+", win: "Ctrl-+"},
+        exec: function(editor) {
+            var size = parseInt(editor.getFontSize(), 10) || 12;
+            editor.setFontSize(size + 1);
+        }
+    }) 
+
+    editor.commands.addCommand({
+        name: "decreaseFontSize",
+        bindKey: {mac: "Ctrl-Alt-A", win: "Ctrl-Alt-A"},//{mac: "Ctrl+-", win: "Ctrl+-"},
+        exec: function(editor) {
+            var size = parseInt(editor.getFontSize(), 10) || 12;
+            editor.setFontSize(Math.max(size - 1 || 1));
+        }
+    })
+
+    editor.commands.addCommand({
+        name: "resetFontSize",
+        bindKey: {mac: "Ctrl-Alt-Q", win: "Ctrl-Alt-Q"},
+        exec: function(editor) {
+            editor.setFontSize(12);
+        }
+    })
+
+    editor.commands.addCommand({
+        name: 'devtools',
+        bindKey: {mac: "Ctrl-Alt-T", win: "Ctrl-Alt-T"},
+        exec: function(editor) {
+            gui.Window.get().showDevTools();
+        }
+    })
 
     editor.commands.addCommand({
         name: 'tooglepdf',
-        bindKey: {mac: "Ctrl-Shift-T", win: "Ctrl-Shift-T"},
+        bindKey: {mac: "Ctrl-Alt-P", win: "Ctrl-Alt-P"},
         exec: function(editor) {
              togglePdf();
+        }
+    })
+
+    editor.commands.addCommand({
+        name: 'tooglehtml',
+        bindKey: {mac: "Ctrl-Alt-H", win: "Ctrl-Alt-H"},
+        exec: function(editor) {
+             toggleHtml();
+        }
+    })
+
+    editor.commands.addCommand({
+        name: 'helpdyndoc',
+        bindKey: {mac: "Ctrl-Shift-H", win: "Ctrl-Shift-H"},
+        exec: function(editor) {
+            gui.Window.open('http://dyndoc.upmf-grenoble.fr/Dyndoc.html', {toolbar: true,position: 'center'});
         }
     })
 
@@ -135,7 +271,7 @@
 
     editor.commands.addCommand({
         name: 'open',
-        bindKey: {mac: "Command-O", win: "Ctrl-Shift-O"},
+        bindKey: {mac: "Command-O", win: "Ctrl-O"},
         exec: function(editor) {
             console.log("to open");
             chooseFile("#openDialog");
@@ -145,13 +281,13 @@
 
      editor.commands.addCommand({
         name: 'dyndoc',
-        bindKey: {mac: "Command-X", win: "Ctrl-Shift-X"},
+        bindKey: {mac: "Command-X", win: "Ctrl-X"},
         exec: function(editor) {
             console.log("dir: "+win.dirname);
             process.chdir(win.dirname);
             var args=["all","-cspdf",win.basename];
-            console.log("exec: "+dyndoc.cmds.ruby+":"+args);
-            var child=execFile(dyndoc.cmds.ruby,args,function(error,stdout,stderr) { 
+            console.log("exec: "+cmds.dyndoc.ruby+":"+args);
+            var child=execFile(cmds.dyndoc.ruby,args,function(error,stdout,stderr) { 
                 if (error) {
                   console.log(error.stack); 
                   console.log('Error code: '+ error.code); 

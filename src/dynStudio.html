@@ -21,11 +21,16 @@
 
 <input style="display:none;" id="openDialog" type="file" />
 
-<div id="togglepdf" onclick="togglePdf();" style="position: absolute;top:0;left:49%;bottom:0;width:1%;height:100%;background-color:#888888;"></div> 
-
 <div id="container"><div id="editor"></div></div>
 
-<iframe id="pdfviewer" src="pdf.js/web/viewer.html" style="position: absolute;top:0;left:50%;right:0;bottom:0;width:50%;height:100%"></iframe>
+<div id="togglepdf" onclick="togglePdf();" style="position: absolute;top:0;left:49%;bottom:50%;width:1%;height:50%;background-color:#778888;"></div> 
+
+<iframe id="pdfviewer" src="pdf.js/web/viewer.html?file=../../dyndocTalk.pdf" style="position: absolute;top:0%;left:50%;right:0;bottom:50%;width:50%;height:50%"></iframe>
+
+<div id="togglehtml" onclick="toggleHtml();" style="position: absolute;top:50%;left:49%;bottom:0%;width:1%;height:50%;background-color:#887788;"></div>
+
+<iframe id="htmlviewer" src="http://dyndoc.upmf-grenoble.fr/Dyndoc.html" style="position: absolute;top:50%;left:50%;right:0;bottom:0%;width:50%;height:50%" nwfaketop nwdisable></iframe>
+
 <script src="dynStudio.js" type="text/javascript" charset="utf-8"></script>
   
 </body>
