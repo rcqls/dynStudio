@@ -347,6 +347,18 @@
     //Note: already in use Ctrl-Shift-(EUDKLPRZ) Ctrl-Alt-(E)
 
     editor.commands.addCommand({
+        name: "help",
+        bindKey: {mac: "Ctrl-H", win: "Ctrl-H"},
+        exec: function(editor) {
+            var new_win = gui.Window.open('help.html', {
+                toolbar: false,
+                width: 800,
+                height: 400
+            });
+        }
+    }) 
+
+    editor.commands.addCommand({
         name: "increaseFontSize",
         bindKey: {mac: "Ctrl-Alt-Z", win: "Ctrl-Alt-Z"},//{mac: "Ctrl-+", win: "Ctrl-+"},
         exec: function(editor) {
