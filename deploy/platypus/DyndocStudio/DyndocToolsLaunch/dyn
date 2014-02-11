@@ -1,5 +1,0 @@
-#!/bin/bash -l
-
-. ./fakeDyndocStudio.bash_profile
-
-exec $*

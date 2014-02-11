@@ -1,0 +1,14 @@
+#!/bin/bash -l
+
+. /Applications/DyndocStudio.app/Contents/DyndocTools/bin/DyndocStudio.bash_profile
+
+case $1 in
+ruby|gem|irb|R)
+$* ;;
+cli)
+shift
+dyndoc-client $*;;
+srv)
+dyndoc-daemon $*;;
+*) dyndoc-ruby $*;;
+esac

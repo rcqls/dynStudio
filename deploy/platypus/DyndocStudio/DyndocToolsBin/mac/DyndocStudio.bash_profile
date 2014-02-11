@@ -1,12 +1,12 @@
-#!/bin/bash -l
+ 
 
-if [[ ! ( -d "$HOME/.bash_profile" ) ]]; then
-. $HOME/.bash_profile
-fi
+# if [[ ! ( -d "$HOME/.bash_profile" ) ]]; then
+# . $HOME/.bash_profile
+# fi
 
 RUBYVERSION=2.1.0 #2.0.0 
 
-RESOURCESDIR=$(dirname $0)
+RESOURCESDIR=/Applications/DyndocStudio.app/Contents/MacOS
 DYNDOCTOOLS=$RESOURCESDIR/../DyndocTools
 export DYNDOCTOOLS
 export DYNDOCROOT=$HOME/dyndoc
@@ -41,19 +41,3 @@ if [[ ! ( -d "$DYNDOCROOT" ) ]]; then
 	cp -R $DYNDOCTOOLS/install/doc/* $DYNDOCROOT/doc
 	cp -R $DYNDOCTOOLS/install/demo/* $DYNDOCROOT/demo
 fi
-
-if [[ ! ( -d "$DYNDOCROOT/studio" ) ]]; then
-	mkdir -p $DYNDOCROOT/studio
-	cp -R $DYNDOCTOOLS/install/studio/* $DYNDOCROOT/studio/
-fi
-
-if [[ ! -f "$DYNDOCROOT/studio/.currentFile" ]]; then
-	echo "$DYNDOCROOT/demo/first.dyn" >  $DYNDOCROOT/studio/.currentFile
-fi
-
-if [[ ! ( -f "$DYNDOCROOT/bin/dyn" ) ]]; then
-	mkdir -p $DYNDOCROOT/bin
-	cp $DYNDOCTOOLS/bin/dyn $DYNDOCROOT/bin/
-fi
-
-open $RESOURCESDIR/dynStudio.app
