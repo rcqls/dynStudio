@@ -9,10 +9,12 @@
         left: 0;
         bottom: 0;
         left: 0;
-        width: 49.5%;
+        width: 100%;
     }
 </style>
-    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>window.ace=ace;</script>
 <script src="ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
 <!-- script src="lib/mode-dyndoc.js" type="text/javascript" charset="utf-8"></script-->
 <!--script src="lib/snippets/dyndoc.js" type="text/javascript" charset="utf-8"></script-->
@@ -24,19 +26,6 @@
 <input style="display:none;" id="saveAsDialog" type="file" nwsaveas="untitled.dyn"/>
 
 <div id="container"><div id="editor"></div></div>
-
-<div id="togglepdf" onclick="togglePdf();" style="position: absolute;top:0%;left:50%;width:0.5%;height:50.5%;background-color:#008888;"></div> 
-
-<iframe id="pdfviewer" src="pdf.js/web/viewer.html?file=../../dyndocTalk.pdf" style="position: absolute;top:0%;left:50.5%;width:49.5%;height:50%;"></iframe>
-
-<div id="toggleeditor" onclick="toggleEditor();" style="position: absolute;top:0%;left:49.5%;width:0.5%;height:100%;background-color:#888800;"></div>
-
-<div id="togglehtml" onclick="toggleHtml();" style="position: absolute;top:50.5%;left:50%;width:0.5%;height:49.5%;background-color:#880088;"></div>
-
-<iframe id="htmlviewer" src="http://dyndoc.upmf-grenoble.fr/Dyndoc.html" style="position: absolute;top:50%;left:50.5%;width:49.5%;height:50%;" nwfaketop nwdisable></iframe>
-
-
-<div id="toggleall" onclick="showAllViewers();" style="position: absolute;top:49.5%;left:49.5%;width:1%;height:1%;background-color:#000000;"></div>
 
 <script src="dynStudio.js" type="text/javascript" charset="utf-8"></script>
   

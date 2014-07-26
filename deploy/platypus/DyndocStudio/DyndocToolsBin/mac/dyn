@@ -3,7 +3,8 @@
 . /Applications/DyndocStudio.app/Contents/DyndocTools/bin/DyndocStudio.bash_profile
 
 case $1 in
-ruby|gem|irb|R)
+gem specific_install https://github.com/rcqls/dyndoc.git;;
+ruby|gem|irb|R|rake)
 $* ;;
 cli)
 shift

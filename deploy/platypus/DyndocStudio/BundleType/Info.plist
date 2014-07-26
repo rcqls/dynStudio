@@ -41,8 +41,10 @@
           <string>dyn_tex</string>
           <string>dyn_html</string>
         </array>
-        <key>CFBundleTypeIconFile</key>
-        <string>appIcon.icns</string>
+        <key>CFBundleTypeIconFiles</key>
+        <array>
+            <string>appIcon.icns</string>
+        </array>
         <key>CFBundleTypeName</key>
         <string>Dyndoc template document</string>
         <key>CFBundleTypeRole</key>

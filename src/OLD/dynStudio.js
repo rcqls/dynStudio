@@ -1,7 +1,5 @@
 //'use strict';
-    var ace = window.ace;
     var gui = require('nw.gui');
-    console.log("argv:"+gui.App.argv);
     var fs = require("fs");
     var os = require("os");
     var path = require("path");
@@ -52,11 +50,11 @@
     console.log("dyndoc.json path: "+studioDyndocJson);
     if (fs.existsSync(studioDyndocJson+".json")) {
         cmds = JSON.parse(fs.readFileSync(studioDyndocJson+".json"));
-        //console.log("commands before:"+JSON.stringify(cmds,null,"\t"));
+        console.log("commands before:"+JSON.stringify(cmds,null,"\t"));
         cmds.dyndoc.ruby = resolvePath(cmds.dyndoc.ruby.join(path.sep));
         cmds.dyndoc.client = resolvePath(cmds.dyndoc.client.join(path.sep));
         cmds.dyndoc.server = resolvePath(cmds.dyndoc.server.join(path.sep));
-        //console.log("commands after:"+JSON.stringify(cmds,null,"\t"));
+        console.log("commands after:"+JSON.stringify(cmds,null,"\t"));
     } else {
         cmds.dyndoc = {ruby: "dyndoc-ruby", client: "dyndoc-client", server: "dyndoc-daemon"};
     }
@@ -74,7 +72,7 @@
     }
 
     function readPdf(filename) {
-        var pdfview = pdfwin.window.frames[0].PDFView; //PDFView from iframe
+        var pdfview = window.frames[0].PDFView; //PDFView from iframe
         var pdfBuf;
         pdfBuf=new Uint8Array(fs.readFileSync(filename));
         pdfview.open(pdfBuf, 0);
@@ -115,8 +113,6 @@
         })
     }
 
-    console.log("window:"+window);
-
     ace.require("ace/ext/language_tools");
     config();
 
@@ -138,29 +134,14 @@
     editor.setFontSize(studioCfg.acefontsize);
     editor.getSession().setMode("ace/mode/dyndoc");
 
-    // var pdfwin = gui.Window.get(
-    //     window.open("pdfviewer.html")
-    // );
-
-    var pdfwin = gui.Window.open('pdfviewer.html', {
-        position: 'center',
-        width: 800,
-        height: 600
-    });
-
-    gui.App.on('open', function(cmdline) {
-        console.log('Command Line: ' + cmdline);
-    });
-
     // gui.Window.get().on("loaded",function() {
         if(gui.App.argv.length>0) {
-            console.log("argv:",gui.App.argv);
             initFile(gui.App.argv[0],'first');
             readDynFile(win.currentDyn);
             if(fs.existsSync(win.currentPdf)) touch(win.currentPdf);
         } else if(fs.existsSync(studioCurrentFile)) {
             var filename=fs.readFileSync(studioCurrentFile, "utf8");
-            console.log("filename2:"+filename);
+            console.log("filename:"+filename);
             if(fs.existsSync(filename)) {
                 initFile(filename,'first');
             } 
@@ -174,6 +155,10 @@
             if(win.currentPdf !== undefined && fs.existsSync(win.currentPdf)) touch(win.currentPdf);
         }
     // })
+
+    gui.App.on('open', function(cmdline) {
+        console.log('command line: ' + cmdline);
+    });
 
     function chooseFile(name) {
         var chooser = document.querySelector(name);
@@ -194,6 +179,138 @@
         chooser.click();        
     }
     
+
+    function setViewerMode(mode,who) {
+        if(win.viewers[who] === undefined) win.viewers[who]="half";
+        win.viewers['old'+who]=win.viewers[who];
+        win.viewers[who]=mode;
+    }
+
+    function showToggleLeft(who,mode) {
+        if(mode=="left") {
+            document.getElementById(who).style.left="0%";
+        } else if (mode=="center") {
+            document.getElementById(who).style.left="49.5%";
+        } else if(mode=="right") {
+            document.getElementById(who).style.left="99%";
+        }
+
+    }
+
+    function showToggleRight(who,mode) {
+        if(mode=="left") {
+            document.getElementById(who).style.left="0.5%";
+        } else if (mode=="center") {
+            document.getElementById(who).style.left="50%";
+        } else if(mode=="right") {
+            document.getElementById(who).style.left="99.5%";
+        }
+
+    }
+
+    function showEditorViewer(mode) {
+        setViewerMode(mode,"editor");
+        if(mode=="full") {
+            document.getElementById("editor").style.display="";
+            document.getElementById("editor").style.width="99%";
+            showToggleLeft("toggleeditor","right");
+            showToggleRight("togglepdf","right");
+            showToggleRight("togglehtml","right");
+            showToggleLeft("toggleall","right");
+        } else if(mode=="half") {
+            document.getElementById("editor").style.display="";
+            document.getElementById("editor").style.width="49.5%";
+            showToggleLeft("toggleeditor","center");
+            showToggleRight("togglepdf","center");
+            showToggleRight("togglehtml","center");
+            showToggleLeft("toggleall","center");
+        } else if(mode=="zero") {
+            document.getElementById("editor").style.display="none";
+            showToggleLeft("toggleeditor","left");
+            showToggleRight("togglepdf","left");
+            showToggleRight("togglehtml","left");
+            showToggleLeft("toggleall","left");
+        } 
+    }
+
+    function showPdfViewer(mode) {
+        setViewerMode(mode,"pdf")
+        if(mode=="full") {
+            document.getElementById("pdfviewer").style.display="";
+            document.getElementById("pdfviewer").style.width="99%";
+            document.getElementById("pdfviewer").style.height="100%";
+            document.getElementById("pdfviewer").style.left="1%";
+        } else if(mode=="half") {
+            document.getElementById("pdfviewer").style.display="";
+            document.getElementById("pdfviewer").style.width="49.5%";
+            document.getElementById("pdfviewer").style.height="50%";
+            document.getElementById("pdfviewer").style.left="50.5%";
+        } else if(mode=="zero") {
+            document.getElementById("pdfviewer").style.display="none";
+        } 
+    } 
+
+    function showHtmlViewer(mode) {
+        setViewerMode(mode,"html")
+        if(mode=="full") {
+            document.getElementById("htmlviewer").style.display="";
+            document.getElementById("htmlviewer").style.width="99%";
+            document.getElementById("htmlviewer").style.top="0%";
+            document.getElementById("htmlviewer").style.height="100%";
+            document.getElementById("htmlviewer").style.left="1%";
+        } else if(mode=="half") {
+            document.getElementById("htmlviewer").style.display="";
+            document.getElementById("htmlviewer").style.width="49.5%";
+            document.getElementById("htmlviewer").style.top="50%";
+            document.getElementById("htmlviewer").style.height="50%";
+            document.getElementById("htmlviewer").style.left="50%";
+        } else if(mode=="zero") {
+            document.getElementById("htmlviewer").style.display="none";
+        } 
+    } 
+
+    function toggleEditor() {
+        if (win.viewers.editor !=="full") {
+            showEditorViewer("full");
+            showPdfViewer("zero");
+            showHtmlViewer("zero");
+        } else {
+            showEditorViewer(win.viewers.oldeditor);
+            showPdfViewer(win.viewers.oldpdf);
+            showHtmlViewer(win.viewers.oldhtml);
+        }
+    }
+
+    function togglePdf() {
+        if (win.viewers.pdf !=="full") {
+            showPdfViewer("full");
+            showEditorViewer("zero");
+            showHtmlViewer("zero");
+        } else {
+            showEditorViewer(win.viewers.oldeditor);
+            showPdfViewer(win.viewers.oldpdf);
+            showHtmlViewer(win.viewers.oldhtml);
+        }
+    }
+
+    function toggleHtml() {
+        if (win.viewers.html !== "full") {
+            showHtmlViewer("full");
+            showEditorViewer("zero");
+            showPdfViewer("zero");
+        } else {
+            showEditorViewer(win.viewers.oldeditor);
+            showPdfViewer(win.viewers.oldpdf);
+            showHtmlViewer(win.viewers.oldhtml);
+        }
+    }
+
+    function showAllViewers() {
+        showHtmlViewer("half");
+        showEditorViewer("half");
+        showPdfViewer("half");
+    }
+
     // keys control
 
     function keydown(evt) {
@@ -201,9 +318,9 @@
         var cmd = (evt.ctrlKey ? 1 : 0) | (evt.altKey ? 2 : 0) | (evt.shiftKey ? 4 : 0) | (evt.metaKey ? 8 : 0);
 
         if (cmd === 3 && evt.keyCode==84) gui.Window.get().showDevTools();
-        //if (cmd === 3 && evt.keyCode==80) togglePdf();
-        //if (cmd === 3 && evt.keyCode==72) toggleHtml();
-        //if (cmd === 3 && evt.keyCode==69) toggleEditor();
+        if (cmd === 3 && evt.keyCode==80) togglePdf();
+        if (cmd === 3 && evt.keyCode==72) toggleHtml();
+        if (cmd === 3 && evt.keyCode==69) toggleEditor();
         if (cmd === 5 && evt.keyCode==72) gui.Window.open('http://dyndoc.upmf-grenoble.fr/Dyndoc.html', {toolbar: true,position: 'center'});
 
         //DEBUG: console.log("keydown:"+cmd+","+evt.keyCode);
@@ -222,9 +339,9 @@
 
     window.addEventListener('keydown', keydown);
 
-    //window.frames[0].addEventListener('keydown',keydown);
+    window.frames[0].addEventListener('keydown',keydown);
 
-    //window.frames[1].addEventListener('keydown',keydown);
+    window.frames[1].addEventListener('keydown',keydown);
 
 
     //Note: already in use Ctrl-Shift-(EUDKLPRZ) Ctrl-Alt-(E)
@@ -282,7 +399,31 @@
             setTheme(true);
         }
     })
- 
+
+    editor.commands.addCommand({
+        name: 'toogleeditor',
+        bindKey: {mac: "Ctrl-Alt-E", win: "Ctrl-Alt-E"},
+        exec: function(editor) {
+             toggleEditor();
+        }
+    })
+
+    editor.commands.addCommand({
+        name: 'tooglepdf',
+        bindKey: {mac: "Ctrl-Alt-P", win: "Ctrl-Alt-P"},
+        exec: function(editor) {
+             togglePdf();
+        }
+    })
+
+    editor.commands.addCommand({
+        name: 'tooglehtml',
+        bindKey: {mac: "Ctrl-Alt-H", win: "Ctrl-Alt-H"},
+        exec: function(editor) {
+             toggleHtml();
+        }
+    })
+
     editor.commands.addCommand({
         name: 'helpdyndoc',
         bindKey: {mac: "Ctrl-Shift-H", win: "Ctrl-Shift-H"},
@@ -344,8 +485,7 @@
             process.chdir(win.dirname);
             var args=["all","-cspdf",win.basename];
             console.log("exec: "+cmds.dyndoc.ruby+":"+args);
-            console.log(process.env);
-            var child=execFile(cmds.dyndoc.ruby,args,{env: process.env},function(error,stdout,stderr) { 
+            var child=execFile(cmds.dyndoc.ruby,args,function(error,stdout,stderr) { 
                 if (error) {
                   console.log(error.stack); 
                   console.log('Error code: '+ error.code); 

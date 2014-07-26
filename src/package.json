@@ -3,7 +3,7 @@
     "version": "0.1",
   	"main": "dynStudio.html",
   	"window": {
-  		"toolbar": false,
+  		"toolbar": true,
   		"width": 1024,
     	"height": 600,
     	"min_width": 300,

@@ -1,0 +1,22 @@
+
+1) mkdir -p ~/tmp/dyndocTools
+2) donwload: http://dyndoc.upmf-grenoble.fr/get/installers/install_dyndoc_tools.tar.gz and move it in ~/tmp/dyndocTools.
+3) cd ~/tmp/dyndocTools
+4) tar xzvf install_dyndoc_tools.tar.gz
+5) Required: 
+ruby-build (see github installation standalone)
+openssl (with dev) et libgmp10 (with dev)
+5) ./install.sh
+yank "yes" each time …. (ruby install is pretty long but only to do once. Idem for ruby gems and R packages). 
+
+
+
+6) ~/dyndoc/bin  in PATH.
+
+Après tapes pour tester: 
+1) dyn ruby -v
+=>  should return the ruby version ruby newly installed not interfering with other system ruby installations in the same computer.
+ 2) cd ~/dyndoc/demo
+rm first.pdf
+dyn all -cspdf first.dyn
+=> should create first.pdf

@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     nodewebkit: {
       options: {
         build_dir: '../../build', // Where the build version of my node-webkit app is saved
-        version: '0.8.4', //0.8.4 fails do not know why???? TODO LATER
+        version: '0.8.6', //0.8.4 fails do not know why???? TODO LATER
         //credits: './public/credits.html',
         mac_icns: '/Users/remy/Github/dynStudio/rsrc/dynStudio.icns', // Path to the Mac icon file
         mac: true, // We want to build it for mac
